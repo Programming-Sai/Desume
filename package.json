@@ -1,0 +1,33 @@
+{
+  "name": "desume",
+  "version": "0.0.1",
+  "description": "Desume: The developer's resume generator. Automatically builds and updates your resume from your real coding activity, projects, and GitHub profile.",
+  "bin": {
+    "desume": "./cli.js"
+  },
+  "scripts": {
+    "start": "node cli.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Programming-Sai/Desume.git"
+  },
+  "keywords": [
+    "github",
+    "javascript",
+    "resume",
+    "cli",
+    "open-source",
+    "pdf",
+    "automation",
+    "developer",
+    "portfolio"
+  ],
+  "author": "Programming-Sai",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Programming-Sai/Desume/issues"
+  },
+  "homepage": "https://github.com/Programming-Sai/Desume#readme"
+}
