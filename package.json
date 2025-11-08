@@ -1,6 +1,7 @@
 {
   "name": "desume",
   "version": "0.0.1",
+  "type": "module",
   "description": "Desume: The developer's resume generator. Automatically builds and updates your resume from your real coding activity, projects, and GitHub profile.",
   "bin": {
     "desume": "./cli.js"
@@ -29,5 +30,8 @@
   "bugs": {
     "url": "https://github.com/Programming-Sai/Desume/issues"
   },
-  "homepage": "https://github.com/Programming-Sai/Desume#readme"
+  "homepage": "https://github.com/Programming-Sai/Desume#readme",
+  "dependencies": {
+    "groq-sdk": "^0.34.0"
+  }
 }

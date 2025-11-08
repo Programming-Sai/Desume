@@ -1,8 +1,8 @@
 // const fetch = require("node-fetch");
-const { readKey } = require("../utils/keys");
+import keys from "../utils/keys.js";
 
 const GITHUB_GRAPHQL_URL = "https://api.github.com/graphql";
-const token = readKey("github"); // from .desume/.keys.key
+const token = keys.readKey("github"); // from .desume/.keys.key
 
 if (!token) {
   console.error("❌ No GitHub token found in .desume/.keys.key");

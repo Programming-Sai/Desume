@@ -1,22 +1,33 @@
 // src/utils/keys.js
-const fs = require("fs");
-const path = require("path");
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  chmodSync,
+  unlinkSync,
+} from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-const KEYS_DIR = path.join(__dirname, "../../.desume");
-const KEYS_FILE = path.join(KEYS_DIR, ".keys.key");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const KEYS_DIR = join(__dirname, "../../.desume");
+const KEYS_FILE = join(KEYS_DIR, ".keys.key");
 
 /** Ensure .desume dir exists */
 function ensureDir() {
-  if (!fs.existsSync(KEYS_DIR)) {
-    fs.mkdirSync(KEYS_DIR, { recursive: true });
+  if (!existsSync(KEYS_DIR)) {
+    mkdirSync(KEYS_DIR, { recursive: true });
   }
 }
 
 /** Read raw file content, return null if missing */
 function _readRaw() {
   try {
-    if (!fs.existsSync(KEYS_FILE)) return null;
-    return fs.readFileSync(KEYS_FILE, "utf8");
+    if (!existsSync(KEYS_FILE)) return null;
+    return readFileSync(KEYS_FILE, "utf8");
   } catch (e) {
     return null;
   }
@@ -26,9 +37,9 @@ function _readRaw() {
 function _writeJson(obj) {
   ensureDir();
   const data = JSON.stringify(obj, null, 2);
-  fs.writeFileSync(KEYS_FILE, data, { encoding: "utf8" });
+  writeFileSync(KEYS_FILE, data, { encoding: "utf8" });
   try {
-    fs.chmodSync(KEYS_FILE, 0o600);
+    chmodSync(KEYS_FILE, 0o600);
   } catch (e) {
     /* ignore on Windows */
   }
@@ -103,14 +114,14 @@ function listKeys() {
 /** Completely remove the keys file */
 function wipeAll() {
   try {
-    if (fs.existsSync(KEYS_FILE)) fs.unlinkSync(KEYS_FILE);
+    if (existsSync(KEYS_FILE)) unlinkSync(KEYS_FILE);
     return true;
   } catch (e) {
     return false;
   }
 }
 
-module.exports = {
+export default {
   KEYS_DIR,
   KEYS_FILE,
   writeKey,
