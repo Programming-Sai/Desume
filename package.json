@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/Programming-Sai/Desume#readme",
   "dependencies": {
-    "groq-sdk": "^0.34.0"
+    "groq-sdk": "^0.34.0",
+    "mammoth": "^1.11.0"
   }
 }
