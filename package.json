@@ -32,10 +32,11 @@
   },
   "homepage": "https://github.com/Programming-Sai/Desume#readme",
   "dependencies": {
+    "cheerio": "^1.1.2",
     "docxtemplater": "^3.67.5",
     "groq-sdk": "^0.34.0",
-    "mammoth": "^1.11.0",
+    "node-fetch": "^3.3.2",
     "pizzip": "^3.2.0",
-    "xmldom": "^0.6.0"
+    "tesseract.js": "^6.0.1"
   }
 }
