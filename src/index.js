@@ -1,12 +1,44 @@
-// console.log(`
-// 🧩 Desume — The Developer's Resume Generator
-// Automate your resume creation directly from your coding activity.
-// `);
+import { renderDocxTemplate } from "./template-engine/resume-to-template-converter/populate-template.js";
+import resumeData from "./resumeData.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
-import { readDocx } from "./template-engine/resume-to-template-converter/resume-reader.js";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const path =
-  "C:/Users/pc/Desktop/Text Folder/DOCX Files/DUABALABS - MENSAH LARTEY ISAIAH NII LARTEY - Copy.docx";
+async function generateResume() {
+  try {
+    const templatePath = path.join(
+      __dirname,
+      "..",
+      ".desume",
+      "templates",
+      "Next",
+      "template.docx"
+    );
+    const outputPath = path.join(__dirname, "..", "mensah.docx");
 
-const text = await readDocx(path);
-console.log(text);
+    console.log("📄 Generating resume...");
+    console.log("Template path:", templatePath);
+    console.log("Output path:", outputPath);
+
+    const result = await renderDocxTemplate(
+      templatePath,
+      outputPath,
+      resumeData
+    );
+
+    console.log("✅ Resume generated successfully:", result);
+    return result;
+  } catch (error) {
+    console.error("❌ Error generating resume:", error);
+    throw error;
+  }
+}
+
+// Run if this file is executed directly
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  generateResume();
+}
+
+export default generateResume;
