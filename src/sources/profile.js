@@ -1,65 +1,270 @@
-// scripts/test-profile.js
-import store from "../utils/profileManager.js";
+import inquirer from "inquirer";
+import { saveProfile, loadProfile } from "../utils/profileManager.js";
+// import profileSchema from "./profileSchema.json";
 
-(async () => {
-  console.log("== initial ==");
-  console.log(await store.readProfile());
-
-  console.log("== set name ==");
-  await store.setField(["profile", "firstName"], "Isaiah");
-  await store.setField(["profile", "lastName"], "Kwame");
-  // fullName auto-synced from first + last if not set
-
-  console.log("== bulk update contact (emails/phones) ==");
-  await store.bulkUpdate({
-    contact: {
-      emails: ["isaiah@example.com"],
-      phones: ["+233501234567"],
+export const profileQuestions = {
+  personal: [
+    {
+      type: "input",
+      name: "name",
+      message: "Full name:",
+      validate: (input) => (input ? true : "Name is required"),
     },
-  });
+    {
+      type: "input",
+      name: "email",
+      message: "Email address:",
+      validate: (input) =>
+        /\S+@\S+\.\S+/.test(input) ? true : "Please enter a valid email",
+    },
+    {
+      type: "input",
+      name: "phone",
+      message: "Phone number (optional):",
+    },
+    {
+      type: "input",
+      name: "location",
+      message: "Location (City, Country - optional):",
+    },
+  ],
 
-  console.log("== add link(s) ==");
-  await store.addLink({
-    type: "linkedin",
-    label: "LinkedIn",
-    url: "https://linkedin.com/in/isaiah",
-    primary: true,
-  });
-  await store.addLink({
-    type: "portfolio",
-    label: "Portfolio",
-    url: "https://isaiah.dev",
-  });
+  links: [
+    {
+      type: "input",
+      name: "website",
+      message: "Personal website (optional):",
+    },
+    {
+      type: "input",
+      name: "linkedin",
+      message: "LinkedIn URL (optional):",
+    },
+    {
+      type: "input",
+      name: "github",
+      message: "GitHub URL (optional):",
+      default: "https://github.com/Programming-Sai",
+    },
+    {
+      type: "input",
+      name: "portfolio",
+      message: "Portfolio URL (optional):",
+    },
+  ],
 
-  console.log("== add education ==");
-  await store.addEducation({
-    school: "University of Ghana",
-    degree: "BSc Computer Science",
-    fieldOfStudy: "Computer Science",
-    startDate: "2021-08",
-    endDate: "2025-06",
-    description: "Focus on systems and algorithms.",
-  });
+  summary: [
+    {
+      type: "editor",
+      name: "summary",
+      message: "Professional summary (press Enter to open editor):",
+      validate: (input) =>
+        input && input.length > 50
+          ? true
+          : "Please write a summary (at least 50 characters)",
+    },
+  ],
 
-  console.log("== add experience ==");
-  await store.addExperience({
-    company: "CtxIQ",
-    title: "Backend Dev",
-    startDate: "2025-07",
-    endDate: null,
-    isCurrent: true,
-    location: "Accra (remote)",
-    description: "Worked on backend features.",
-    bulletPoints: ["Implemented REST endpoints", "Wrote unit tests"],
-    technologies: ["Node.js", "Express", "Postgres"],
-  });
+  experience: [
+    {
+      type: "input",
+      name: "company",
+      message: "Company name:",
+      validate: (input) => (input ? true : "Company name is required"),
+    },
+    {
+      type: "input",
+      name: "position",
+      message: "Position:",
+      validate: (input) => (input ? true : "Position is required"),
+    },
+    {
+      type: "input",
+      name: "location",
+      message: "Location (optional):",
+    },
+    {
+      type: "input",
+      name: "startDate",
+      message: "Start date (YYYY-MM):",
+      validate: (input) =>
+        /^\d{4}-\d{2}$/.test(input) ? true : "Please use YYYY-MM format",
+    },
+    {
+      type: "input",
+      name: "endDate",
+      message: 'End date (YYYY-MM or "Present" - optional):',
+      default: "Present",
+    },
+    {
+      type: "editor",
+      name: "description",
+      message: "Job description (one bullet point per line - optional):",
+    },
+  ],
 
-  console.log("== add skills & about ==");
-  await store.setSkills(["Node.js", "Java", "Django", "SQL"]);
-  await store.setAbout(
-    "Computer Science student building backend systems and automation tools."
-  );
+  education: [
+    {
+      type: "input",
+      name: "institution",
+      message: "Institution name:",
+      validate: (input) => (input ? true : "Institution name is required"),
+    },
+    {
+      type: "input",
+      name: "degree",
+      message: "Degree (optional):",
+    },
+    {
+      type: "input",
+      name: "field",
+      message: "Field of study (optional):",
+    },
+    {
+      type: "input",
+      name: "startDate",
+      message: "Start date (YYYY-MM - optional):",
+    },
+    {
+      type: "input",
+      name: "endDate",
+      message: 'End date (YYYY-MM or "Expected YYYY" - optional):',
+    },
+  ],
 
-  console.log("== final ==");
-  console.log(await store.readProfile());
-})();
+  skills: [
+    {
+      type: "input",
+      name: "technologies",
+      message:
+        "Technologies (comma-separated, e.g., JavaScript, Python, React):",
+    },
+    {
+      type: "input",
+      name: "tools",
+      message: "Tools (comma-separated, e.g., Git, Docker, VS Code):",
+    },
+  ],
+};
+
+export async function setupProfile() {
+  console.log("🎯 Desume Profile Setup\n");
+  console.log("Let's build your professional profile...\n");
+
+  const profile = {};
+
+  // Personal Information
+  console.log("📝 Personal Information");
+  console.log("=".repeat(30));
+  const personalAnswers = await inquirer.prompt(profileQuestions.personal);
+  const linksAnswers = await inquirer.prompt(profileQuestions.links);
+
+  profile.personal = {
+    ...personalAnswers,
+    links: linksAnswers,
+  };
+
+  // Professional Summary
+  console.log("\n💼 Professional Summary");
+  console.log("=".repeat(30));
+  const summaryAnswers = await inquirer.prompt(profileQuestions.summary);
+  profile.summary = summaryAnswers.summary;
+
+  // Work Experience
+  console.log("\n💻 Work Experience");
+  console.log("=".repeat(30));
+  profile.experience = [];
+
+  let addMoreExperience = true;
+  while (addMoreExperience) {
+    console.log(`\nAdding experience entry #${profile.experience.length + 1}`);
+    const experienceAnswers = await inquirer.prompt(
+      profileQuestions.experience
+    );
+
+    const description = experienceAnswers.description
+      ? experienceAnswers.description.split("\n").filter((line) => line.trim())
+      : [];
+
+    profile.experience.push({
+      company: experienceAnswers.company,
+      position: experienceAnswers.position,
+      location: experienceAnswers.location || undefined,
+      startDate: experienceAnswers.startDate,
+      endDate: experienceAnswers.endDate || undefined,
+      description: description.length > 0 ? description : undefined,
+    });
+
+    const { continueAdding } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "continueAdding",
+        message: "Add another work experience?",
+        default: false,
+      },
+    ]);
+
+    addMoreExperience = continueAdding;
+  }
+
+  // Education
+  console.log("\n🎓 Education");
+  console.log("=".repeat(30));
+  profile.education = [];
+
+  let addMoreEducation = true;
+  while (addMoreEducation) {
+    console.log(`\nAdding education entry #${profile.education.length + 1}`);
+    const educationAnswers = await inquirer.prompt(profileQuestions.education);
+
+    profile.education.push({
+      institution: educationAnswers.institution,
+      degree: educationAnswers.degree || undefined,
+      field: educationAnswers.field || undefined,
+      startDate: educationAnswers.startDate || undefined,
+      endDate: educationAnswers.endDate || undefined,
+    });
+
+    const { continueAdding } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "continueAdding",
+        message: "Add another education entry?",
+        default: false,
+      },
+    ]);
+
+    addMoreEducation = continueAdding;
+  }
+
+  // Skills
+  console.log("\n🛠️ Skills");
+  console.log("=".repeat(30));
+  const skillsAnswers = await inquirer.prompt(profileQuestions.skills);
+
+  profile.skills = {
+    technologies: skillsAnswers.technologies
+      ? skillsAnswers.technologies
+          .split(",")
+          .map((skill) => skill.trim())
+          .filter((skill) => skill)
+      : [],
+    tools: skillsAnswers.tools
+      ? skillsAnswers.tools
+          .split(",")
+          .map((tool) => tool.trim())
+          .filter((tool) => tool)
+      : [],
+  };
+
+  // Save to storage
+  await saveProfile(profile);
+  console.log("\n✅ Profile saved successfully to .desume/profile.json");
+
+  return profile;
+}
+
+export default {
+  profileQuestions,
+  setupProfile,
+};
