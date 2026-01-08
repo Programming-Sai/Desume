@@ -35,7 +35,9 @@
     "cheerio": "^1.1.2",
     "docxtemplater": "^3.67.5",
     "groq-sdk": "^0.34.0",
+    "handlebars": "^4.7.8",
     "inquirer": "^13.0.1",
+    "mammoth": "^1.11.0",
     "node-fetch": "^3.3.2",
     "pizzip": "^3.2.0",
     "tesseract.js": "^6.0.1"

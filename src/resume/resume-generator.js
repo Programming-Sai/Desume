@@ -1,60 +1,56 @@
 // src/resume/resume-generator.js
-import { renderDocxTemplate } from "../template/populate-template.js";
-import path from "path";
-import { fileURLToPath } from "url";
 import fs from "fs";
+import path from "path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import resumeData from "../resumeData.js";
+import htmlTemplater from "../converters/htmlTemplater.js";
 
+const __dirname = path.resolve();
+
+/**
+ * Template population only:
+ * Handlebars template -> populated HTML
+ */
 export class ResumeGenerator {
   constructor(templateName = "Base") {
     this.templateName = templateName;
-    this.templatesBasePath = path.join(
+    this.templatesPath = path.join(
       __dirname,
-      "..",
-      "..",
       ".desume",
-      "templates"
+      "templates",
+      templateName
     );
-    this.outputsPath = path.join(__dirname, "..", "..", "outputs");
+    this.outputsPath = path.join(__dirname, "outputs");
   }
 
-  async generate(resumeData, outputFileName, templateName = null) {
-    const template = templateName || this.templateName;
-    const templatePath = path.join(
-      this.templatesBasePath,
-      template,
-      "template.docx"
+  async generate(outputFileName) {
+    const templatePath = path.join(this.templatesPath, "template.html");
+    const outputHtmlPath = path.join(
+      this.outputsPath,
+      `${outputFileName}.html`
     );
-    const outputPath = path.join(this.outputsPath, `${outputFileName}.docx`);
 
-    // CREATE OUTPUTS DIRECTORY IF IT DOESN'T EXIST
+    if (!fs.existsSync(templatePath)) {
+      throw new Error(
+        "❌ template.html not found. Run template creation first."
+      );
+    }
+
     if (!fs.existsSync(this.outputsPath)) {
       fs.mkdirSync(this.outputsPath, { recursive: true });
-      console.log("📁 Created outputs directory");
     }
 
-    console.log("📄 Generating resume...");
-    console.log("Template:", template);
-    console.log("Output:", outputPath);
+    // 1️⃣ Load Handlebars template
+    const templatedHtml = fs.readFileSync(templatePath, "utf8");
 
-    try {
-      const result = await renderDocxTemplate(
-        templatePath,
-        outputPath,
-        resumeData
-      );
-      console.log("✅ Resume generated successfully:", result);
-      return result;
-    } catch (error) {
-      console.error("❌ Error generating resume:", error);
-      throw error;
-    }
-  }
+    // 2️⃣ Populate with resume data
+    const finalHtml = htmlTemplater(templatedHtml, resumeData);
 
-  listTemplates() {
-    return ["Base", "Next"];
+    // 3️⃣ Write output
+    fs.writeFileSync(outputHtmlPath, finalHtml, "utf8");
+    console.log(`✅ Final rendered HTML saved at: ${outputHtmlPath}`);
+
+    return finalHtml;
   }
 }
 
