@@ -33,6 +33,7 @@
   "homepage": "https://github.com/Programming-Sai/Desume#readme",
   "dependencies": {
     "cheerio": "^1.1.2",
+    "commander": "^14.0.2",
     "docxtemplater": "^3.67.5",
     "groq-sdk": "^0.34.0",
     "handlebars": "^4.7.8",
